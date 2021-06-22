@@ -1,30 +1,27 @@
 // Modules to control application life and create native browser window
 const {app, ipcMain, clipboard, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
 const path = require('path')
-const { keyboard, Key } = require("@nut-tree/nut-js");
-const ks = require('node-key-sender');
-const {Store} = require('./store.js');
+const spawn = require('child_process').spawn;
+const {ArrayStore} = require('./store.js');
 
 const CLIPBOARD_WATCH_INTERVAL = 250;
 const CLIPBOARD_HISTORY_FILE = __dirname + '/history.json';
+const CLIPBOARD_HISTORY_MAX = 1000;
 
-const history = new Store(CLIPBOARD_HISTORY_FILE);
+const history = new ArrayStore(CLIPBOARD_HISTORY_FILE, CLIPBOARD_HISTORY_MAX);
+
 let win = null;
+let clipboardCache = "";
 
 function createWindow () {
-  // Create the browser window.
   win = new BrowserWindow({
-    // width: 400,
-    // height: 600,
-    // minWidth: 400,
-    // minHeight: 600,
-    // maxWidth: 400,
-    // maxHeight: 600,
+    width: 800,
+    height: 600,
     useContentSize: true,
     frame: false,
     alwaysOnTop: true,
     resizable: false,
-    minimizable: false,
+    minimizable: true,
     maximizable: false,
     movable: false,
     fullscreenable: false,
@@ -34,53 +31,76 @@ function createWindow () {
     }
   });
   
-  win.loadFile('app/index.html')
-  win.webContents.openDevTools()
+  win.loadFile('app/index.html');
+  // win.webContents.openDevTools()
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
-  win.on('blur', function() {
-    win.close();
+  win.on('blur', function(event){
+    event.preventDefault();
+    win.hide();
   });
 
-  win.on('closed', function() {
+  win.on('minimize',function(event){
+    event.preventDefault();
+    win.hide();
+  });
+  
+  win.on('close', function (event) {
+    if(!app.isQuiting){
+        event.preventDefault();
+        win.hide();
+    }
+    return false;
+  });
+
+  win.on('closed', function(){
     win = null;
   });
 }
 
+
+
 ipcMain.handle('pasteClip', async(event, message) => {
-  if (!history.data.length) return;
-  if (win) win.close();
-  try {
-    console.log('Paste')
-    clipboard.writeText(message);
-    await keyboard.pressKey(Key.LeftControl);
-    await keyboard.pressKey(Key.V);
-    await keyboard.releaseKey(Key.LeftControl);
-    await keyboard.releaseKey(Key.V);
-    // const x = await ks.sendCombination(['control', 'v']);
-    // console.log(x)
-    // setTimeout(()=>{ ks.sendCombination(['enter']); }, 100);
-  } catch (e) {
-    console.log(e)
+  if (!history.data.length) {
+    return;
+  }
+
+  if (win) {
+    win.hide();
+  }
+
+  clipboard.writeText(message);
+  spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
+});
+
+ipcMain.handle('deleteClip', (event, message) => {
+  history.delete(message); 
+  if (win) {
+    win.webContents.send("clipboardHistoryUpdated", history.data);
   }
 });
 
-
-ipcMain.handle('close', (event, message) => {
-  if (win) win.close();
+ipcMain.handle('closeWindow', (event, message) => {
+  if (win) {
+    win.hide();
+  }
 });
 
 
 app.whenReady().then(() => {
   globalShortcut.register('CommandOrControl+Shift+V', () => {
-    createWindow();
+    if (win) {
+      win.show();
+    } else {
+      createWindow();
+    }
   });
 
   const contextMenu = Menu.buildFromTemplate([
     {label:'Exit', click(menuItem){ app.quit(); }}
   ]);
 
-  tray = new Tray(__dirname + '/holdon.ico')
+  tray = new Tray(__dirname + '/holdon.ico');
   tray.setToolTip("HoldOn");
   tray.on('right-click',() =>{
     tray.popUpContextMenu(contextMenu);
@@ -88,11 +108,9 @@ app.whenReady().then(() => {
 
   clipboardWatcher = setInterval(function(){
     const clip = clipboard.readText();
-    if (clip.trim() !== "" && history.data.length && clip !== history.data[0]) {
+    if (clip.trim() !== "" && clip !== clipboardCache) {
       clipboardCache = clip;
       history.push(clip);
-      history.save();
-      console.log(history.data)
       if (win) win.webContents.send("clipboardHistoryUpdated", history.data);
     }
   }, CLIPBOARD_WATCH_INTERVAL);

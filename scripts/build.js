@@ -5,5 +5,6 @@ build({
     appId: 'com.bar38.Holdon',
     productName: 'HoldOn',
     files: ['app/**/*'],
+    asar: true,
   },
 });

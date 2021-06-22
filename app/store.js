@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-class Store {
+class ArrayStore {
     constructor(file, maxLength=5){
         this.file = file;
         this.data = [];
@@ -8,9 +8,14 @@ class Store {
         this.load();
     }
 
+    delete(data) {
+        this.data = [...this.data.filter(v => v != data)]
+        this.save()
+    }
+
     push(data) {
         this.data = [data, ...this.data.filter(v => v != data)];
-        this.data = this.data.slice(0, this.maxLength);
+        this.save()
     }
 
     load() {
@@ -20,9 +25,9 @@ class Store {
     }
  
     save() {
-        const jsondata = JSON.stringify(this.data);
+        const jsondata = JSON.stringify(this.data.slice(0, this.maxLength));
         fs.writeFileSync(this.file, jsondata);
     }
 }
 
-exports.Store = Store;
+exports.ArrayStore = ArrayStore;
