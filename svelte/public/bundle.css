@@ -1,0 +1,80 @@
+html, body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	font-size: 10px;
+}
+
+body {
+	color: #333;
+	margin: 0;
+	padding: 8px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 1.6rem;
+}
+
+* {
+	box-sizing: border-box;
+}
+:root {
+	--main-text: #333;
+	--main-bg: #fff;
+	--sub-bg: #fefefe;
+	--sub-text: #000;
+	--input-bg: #f1f1f1;
+	--input-text: #333;
+	--color-primary: #6666ff;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--main-text: #ddd;
+		--main-bg: #222;
+		--sub-bg: #333;
+		--sub-text: #fff;
+		--input-bg: #000;
+		--input-text: #fff;
+	}
+}
+   
+body {
+	margin: 0;
+	padding: 0;	
+	color: var(--main-text);
+	background-color: var(--main-bg);
+	box-sizing: border-box;
+}
+
+.container {
+	padding: 1.6rem;
+}
+
+.card {
+	margin: 1.6rem 0;
+	padding: 1.6rem;
+	border: solid 1px var(--sub-bg);
+	border-radius: 1rem;
+	background: var(--sub-bg);
+	color: var(--sub-text);
+}
+
+.card.selected {
+	border-color: var(--color-primary);
+}
+@media (prefers-color-scheme: dark) {
+	.card.selected {
+		border-color: var(--sub-bg);
+		background: #444;
+	}
+}
+
+input {
+	width: 100%;
+	border: solid 1px #444;
+	border-radius: 1rem;
+	padding: 1.6rem;
+	font-size: 1.6rem;
+	color: #fff;
+	background: var(--input-bg);
+	appearance: unset;
+	outline: none;
+}

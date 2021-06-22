@@ -1,0 +1,1 @@
+["webContents","win.webContents.openDevTools()","  win.on('closed', function() {\r\n    // clearInterval(clipboardWatcher);\r\n    win = null;\r\n  });","clipboardHistoryUpdated","webContents"]
