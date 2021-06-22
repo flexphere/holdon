@@ -56,14 +56,15 @@
 }
 
 html, body {
-	font-size: 10px;
-}
-
-body {
 	width: 800px;
 	height: 600px;
 	margin: 0;
 	padding: 0;
+	font-size: 10px;
+	overflow: hidden;
+}
+
+body {
 	background: var(--gray-900);
 	color: var(--gray-50);
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -133,6 +134,12 @@ body {
 	flex: 1;
 	margin: 0;
 	padding: 1.6rem;
+	word-break: break-all;
+}
+
+.card .clip span{
+	display: inline-block;
+	background: var(--gray-600);
 }
 
 .card .delete {

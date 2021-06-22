@@ -4,7 +4,7 @@
 
 	if (location.hash == "#dev") {
 		window.holdon = {
-			history: writable(['abc', 'def', 'ghi','abc', 'def', 'ghi','abc', 'def', 'ghi']),
+			history: writable(['abc', 'd<div>ef</div>', 'ghi','abc', 'def', 'ghi','abc', 'def', 'ghi']),
 			paste: () => {},
 			close: () => {},
 			delete: () => {},
@@ -16,6 +16,7 @@
 	let selectedClip= -1
 	let input;
 	let cards;
+	let regex = null;
 
 	const clips = window.holdon.history;
 
@@ -28,14 +29,20 @@
 	});
 
 	function search() {
-		results = searchText.length 
-				? $clips.filter(c=>c.indexOf(searchText) !== -1) 
-				: $clips.slice(0,10);
-		selectedClip = -1
+		if (searchText.trim().length) {
+			regex = new RegExp(searchText, 'ig');
+			results = $clips.filter(c=>c.match(regex)) 
+		} else {
+			regex = null;
+			results = $clips.slice(0,10);
+		}
+		// results = searchText.length 
+		// 		? $clips.filter(c=>c.indexOf(searchText) !== -1) 
+		// 		: $clips.slice(0,10);
+		selectedClip = -1;
 	}
 
 	function keyboardListener(e) {
-		console.log(cards)
 		if (e.key =="ArrowDown" && selectedClip < results.length - 1) {
 			input.blur();
 			selectedClip++;
@@ -77,9 +84,9 @@
 	}
 
 	function itemDelete(e) {
-		window.holdon.delete(results[e.target.parentElement.dataset.id]);
 		e.preventDefault();
 		e.stopPropagation();
+		window.holdon.delete(results[e.target.parentElement.dataset.id]);
 	}
 </script>
 
@@ -92,10 +99,13 @@
 	<div class="cards" bind:this={cards}>
 		{#each results as clip, i}
 		<div class="card" class:selected={i == selectedClip} data-id={i} on:mouseenter={itemHover} on:click={itemClick}>
+			{#if regex}
+			<div class="clip">{@html clip.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(regex, "<span>$&</span>")}</div>
+			{:else}
 			<div class="clip">{clip}</div>
+			{/if}
 			<div class="delete" on:click={itemDelete}>x</div>
 		</div>
 		{/each}
 	</div>
 </div>
-

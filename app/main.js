@@ -17,7 +17,7 @@ function createWindow () {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    useContentSize: true,
+    // useContentSize: true,
     frame: false,
     alwaysOnTop: true,
     resizable: false,
@@ -25,6 +25,7 @@ function createWindow () {
     maximizable: false,
     movable: false,
     fullscreenable: false,
+    // transparent: true,
     webPreferences: {
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
@@ -36,19 +37,16 @@ function createWindow () {
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
+    console.log("blur")
     event.preventDefault();
-    win.hide();
+    hideWindow();
   });
 
-  win.on('minimize',function(event){
-    event.preventDefault();
-    win.hide();
-  });
-  
   win.on('close', function (event) {
+    console.log("close")
     if(!app.isQuiting){
         event.preventDefault();
-        win.hide();
+        hideWindow();
     }
     return false;
   });
@@ -58,17 +56,29 @@ function createWindow () {
   });
 }
 
+function hideWindow() {
+  if (win) {
+    win.minimize();
+    win.hide();
+  }
+}
 
+
+function showWindow() {
+  if (win) {
+    win.restore();
+    win.show();
+  } else {
+    createWindow();
+  }
+}
 
 ipcMain.handle('pasteClip', async(event, message) => {
   if (!history.data.length) {
     return;
   }
 
-  if (win) {
-    win.hide();
-  }
-
+  hideWindow();
   clipboard.writeText(message);
   spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
 });
@@ -81,19 +91,13 @@ ipcMain.handle('deleteClip', (event, message) => {
 });
 
 ipcMain.handle('closeWindow', (event, message) => {
-  if (win) {
-    win.hide();
-  }
+  hideWindow();
 });
 
 
 app.whenReady().then(() => {
   globalShortcut.register('CommandOrControl+Shift+V', () => {
-    if (win) {
-      win.show();
-    } else {
-      createWindow();
-    }
+    showWindow();
   });
 
   const contextMenu = Menu.buildFromTemplate([
@@ -107,6 +111,10 @@ app.whenReady().then(() => {
   });
 
   clipboardWatcher = setInterval(function(){
+    const img = clipboard.readImage();
+    if (img) {
+      console.log(img.isEmpty());
+    }
     const clip = clipboard.readText();
     if (clip.trim() !== "" && clip !== clipboardCache) {
       clipboardCache = clip;

@@ -6,5 +6,8 @@ build({
     productName: 'HoldOn',
     files: ['app/**/*'],
     asar: true,
+    win: {
+      target: "portable"
+    }
   },
 });
