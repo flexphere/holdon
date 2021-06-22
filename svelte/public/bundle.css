@@ -137,7 +137,20 @@ body {
 	word-break: break-all;
 }
 
-.card .clip span{
+.card .clip .time {
+	font-size: .9em;
+}
+
+.card .clip .image {
+	
+}
+
+.card .clip img {
+	max-width: 50%;
+	max-height: 200px;
+}
+
+.card .clip span {
 	display: inline-block;
 	background: var(--gray-600);
 }

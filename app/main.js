@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {app, ipcMain, clipboard, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
+const {app, ipcMain, clipboard, nativeImage, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
 const path = require('path')
 const spawn = require('child_process').spawn;
 const {ArrayStore} = require('./store.js');
@@ -11,7 +11,7 @@ const CLIPBOARD_HISTORY_MAX = 1000;
 const history = new ArrayStore(CLIPBOARD_HISTORY_FILE, CLIPBOARD_HISTORY_MAX);
 
 let win = null;
-let clipboardCache = "";
+let prevClip = "";
 
 function createWindow () {
   win = new BrowserWindow({
@@ -37,13 +37,11 @@ function createWindow () {
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
-    console.log("blur")
     event.preventDefault();
     hideWindow();
   });
 
   win.on('close', function (event) {
-    console.log("close")
     if(!app.isQuiting){
         event.preventDefault();
         hideWindow();
@@ -73,13 +71,24 @@ function showWindow() {
   }
 }
 
-ipcMain.handle('pasteClip', async(event, message) => {
+ipcMain.handle('pasteClip', async(event, clip) => {
   if (!history.data.length) {
     return;
   }
 
   hideWindow();
-  clipboard.writeText(message);
+
+  console.log(clip.data)
+
+  if (clip.type == "text") {
+    clipboard.writeText(clip);
+  }
+
+  if (clip.type == "image") {
+    const image = nativeImage.createFromDataURL(clip.data);
+    clipboard.writeImage(image);
+  }
+
   spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
 });
 
@@ -111,13 +120,16 @@ app.whenReady().then(() => {
   });
 
   clipboardWatcher = setInterval(function(){
+    const text = clipboard.readText();
     const img = clipboard.readImage();
-    if (img) {
-      console.log(img.isEmpty());
+    const clip = {
+      type: img.isEmpty() ? 'text' : 'image',
+      data: img.isEmpty() ?  text  : img.toDataURL(),
+      time: (new Date()).getTime()
     }
-    const clip = clipboard.readText();
-    if (clip.trim() !== "" && clip !== clipboardCache) {
-      clipboardCache = clip;
+
+    if (clip.type != prevClip.type || clip.data !== prevClip.data) {
+      prevClip = clip;
       history.push(clip);
       if (win) win.webContents.send("clipboardHistoryUpdated", history.data);
     }

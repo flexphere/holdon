@@ -29,12 +29,15 @@
 	});
 
 	function search() {
-		if (searchText.trim().length) {
+		if (searchText.trim() === "-img") {
+			results = $clips.filter(c=>c.type === "image") 
+		}
+		else if (searchText.trim().length) {
 			regex = new RegExp(searchText, 'ig');
-			results = $clips.filter(c=>c.match(regex)) 
+			results = $clips.filter(c=>c.type === "text" && c.data.match(regex)) 
 		} else {
 			regex = null;
-			results = $clips.slice(0,10);
+			results = $clips.slice(0,25);
 		}
 		// results = searchText.length 
 		// 		? $clips.filter(c=>c.indexOf(searchText) !== -1) 
@@ -99,10 +102,20 @@
 	<div class="cards" bind:this={cards}>
 		{#each results as clip, i}
 		<div class="card" class:selected={i == selectedClip} data-id={i} on:mouseenter={itemHover} on:click={itemClick}>
-			{#if regex}
-			<div class="clip">{@html clip.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(regex, "<span>$&</span>")}</div>
-			{:else}
-			<div class="clip">{clip}</div>
+			{#if clip.type == "text"}
+				{#if regex}
+				<div class="clip">{@html clip.data.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(regex, "<span>$&</span>")}</div>
+				{:else}
+				<div class="clip">{clip.data}</div>
+				{/if}
+			{/if}
+			{#if clip.type == "image"}
+				<div class="clip">
+					<div class="time">{(new Date(clip.time)).toLocaleString()}</div>
+					<div class="image">
+						<img src={clip.data} alt="">
+					</div>
+				</div>
 			{/if}
 			<div class="delete" on:click={itemDelete}>x</div>
 		</div>
