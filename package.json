@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "node_modules/.bin/electron .",
-    "build-svelte": "cd svelte && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/"
+    "build-svelte": "cd svelte && npm install && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/"
   },
   "author": "",
   "license": "ISC",
