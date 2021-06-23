@@ -4,6 +4,7 @@
 
 	if (location.hash == "#dev") {
 		window.holdon = {
+			reset: writable(0),
 			history: writable(['abc', 'd<div>ef</div>', 'ghi','abc', 'def', 'ghi','abc', 'def', 'ghi']),
 			paste: () => {},
 			close: () => {},
@@ -19,8 +20,13 @@
 	let regex = null;
 
 	const clips = window.holdon.history;
-
 	clips.subscribe(function(data){
+		search();
+	})
+
+	const resetEvent = window.holdon.reset;
+	resetEvent.subscribe(function(data){
+		searchText = "";
 		search();
 	})
 

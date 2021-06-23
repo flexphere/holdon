@@ -140,6 +140,7 @@ body {
 	flex: 1;
 	margin: 0;
 	padding: 1.6rem;
+	padding-right: calc(40px + 1.6rem);
 	word-break: break-all;
 }
 
@@ -175,6 +176,11 @@ body {
 	cursor: pointer;
 	background: var(--gray-800);
 	transform: translateY(-50%);
+}
+
+.card.selected .delete {
+	/* border: solid 1px var(--gray-800); */
+    border-radius: 0 1rem 1rem 0;
 }
 
 @media (prefers-color-scheme: light) {

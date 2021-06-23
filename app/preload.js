@@ -3,6 +3,7 @@ const {writable} = require('svelte/store');
 
 window.holdon = {};
 
+window.holdon.reset = writable(0);
 window.holdon.history = writable([]);
 
 window.holdon.paste = function(data) {
@@ -19,5 +20,9 @@ window.holdon.close = function() {
 
 ipcRenderer.on("clipboardHistoryUpdated", (_, message) => {
   window.holdon.history.set(message);
+});
+
+ipcRenderer.on("ResetSearch", (_, message) => {
+  window.holdon.reset.set((new Date).getTime());
 });
 

@@ -39,7 +39,7 @@ function createWindow () {
   });
   
   win.loadFile('app/index.html');
-  // win.webContents.openDevTools()
+  // win.webContents.openDevTools();
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
@@ -64,6 +64,7 @@ function createWindow () {
 
 function hideWindow() {
   if (win) {
+    win.webContents.send("ResetSearch");
     win.minimize();
     win.hide();
   }
@@ -116,6 +117,8 @@ app.whenReady().then(() => {
   });
 
   const contextMenu = Menu.buildFromTemplate([
+    {label:'ClearAll', click(menuItem){ win.webContents.send("clipboardHistoryUpdated", history.clear()); }},
+    { type: 'separator' },
     {label:'Exit', click(menuItem){ app.quit(); }}
   ]);
 

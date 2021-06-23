@@ -8,14 +8,22 @@ class ArrayStore {
         this.load();
     }
 
-    delete(data) {
-        this.data = [...this.data.filter(v => v.data != data.data)]
-        this.save()
-    }
-
     push(data) {
         this.data = [data, ...this.data.filter(v => v.data != data.data)];
         this.save()
+        return this.data;
+    }
+    
+    delete(data) {
+        this.data = [...this.data.filter(v => v.data != data.data)]
+        this.save()
+        return this.data;
+    }
+
+    clear() {
+        this.data = [];
+        this.save();
+        return this.data;
     }
 
     load() {
