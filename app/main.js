@@ -3,6 +3,8 @@ const {app, ipcMain, clipboard, nativeImage, Tray, Menu, globalShortcut, Browser
 const path = require('path')
 
 const spawn = require('child_process').spawn;
+var exec = require('child_process').execFile;
+
 const {ArrayStore} = require('./store.js');
 
 const CLIPBOARD_WATCH_INTERVAL = 250;
@@ -96,7 +98,12 @@ ipcMain.handle('pasteClip', async(event, clip) => {
     clipboard.writeImage(image);
   }
 
-  spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
+  console.log()
+  exec((process.env.NODE_ENV=='dev') ? `${require('path').resolve('./')}\\app\\crosspaster.exe` : 'app/crosspaster.exe', function(err, data) {  
+    if(err){
+      console.log(err)
+    }
+  });  
 });
 
 ipcMain.handle('deleteClip', (event, clip) => {
