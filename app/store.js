@@ -9,18 +9,22 @@ class ArrayStore {
     }
 
     delete(data) {
-        this.data = [...this.data.filter(v => v != data)]
+        this.data = [...this.data.filter(v => v.data != data.data)]
         this.save()
     }
 
     push(data) {
-        this.data = [data, ...this.data.filter(v => v != data)];
+        this.data = [data, ...this.data.filter(v => v.data != data.data)];
         this.save()
     }
 
     load() {
-        const rawdata = fs.readFileSync(this.file, {encoding:'utf-8'});
-        this.data = JSON.parse(rawdata);
+        try {
+            const rawdata = fs.readFileSync(this.file, {encoding:'utf-8'});
+            this.data = JSON.parse(rawdata);
+        } catch(error) {
+            console.log(error);
+        }
         return this.data;
     }
  

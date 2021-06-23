@@ -1,11 +1,12 @@
 // Modules to control application life and create native browser window
 const {app, ipcMain, clipboard, nativeImage, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
 const path = require('path')
+
 const spawn = require('child_process').spawn;
 const {ArrayStore} = require('./store.js');
 
 const CLIPBOARD_WATCH_INTERVAL = 250;
-const CLIPBOARD_HISTORY_FILE = __dirname + '/history.json';
+const CLIPBOARD_HISTORY_FILE = path.join(app.getPath('userData'), 'history.json');
 const CLIPBOARD_HISTORY_MAX = 1000;
 
 const history = new ArrayStore(CLIPBOARD_HISTORY_FILE, CLIPBOARD_HISTORY_MAX);
@@ -14,18 +15,23 @@ let win = null;
 let prevClip = "";
 
 function createWindow () {
+  const winWidth = 800;
+  const winHeight = 600;
+
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    minWidth: winWidth,
+    minHeight: winHeight,
+    width: winWidth,
+    height: winHeight,
     // useContentSize: true,
     frame: false,
     alwaysOnTop: true,
-    resizable: false,
+    resizable: true,
     minimizable: true,
     maximizable: false,
     movable: false,
     fullscreenable: false,
-    // transparent: true,
+    transparent: true,
     webPreferences: {
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
@@ -42,15 +48,17 @@ function createWindow () {
   });
 
   win.on('close', function (event) {
-    if(!app.isQuiting){
-        event.preventDefault();
-        hideWindow();
-    }
-    return false;
+    hideWindow();
   });
 
   win.on('closed', function(){
     win = null;
+  });
+
+  win.on('restore', function(){
+    if (process.platform === 'win32') {
+      win.setSize(winWidth, winHeight + 20);
+    }
   });
 }
 
@@ -78,10 +86,8 @@ ipcMain.handle('pasteClip', async(event, clip) => {
 
   hideWindow();
 
-  console.log(clip.data)
-
   if (clip.type == "text") {
-    clipboard.writeText(clip);
+    clipboard.writeText(clip.data);
   }
 
   if (clip.type == "image") {
@@ -92,8 +98,8 @@ ipcMain.handle('pasteClip', async(event, clip) => {
   spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
 });
 
-ipcMain.handle('deleteClip', (event, message) => {
-  history.delete(message); 
+ipcMain.handle('deleteClip', (event, clip) => {
+  history.delete(clip);
   if (win) {
     win.webContents.send("clipboardHistoryUpdated", history.data);
   }
@@ -115,7 +121,12 @@ app.whenReady().then(() => {
 
   tray = new Tray(__dirname + '/holdon.ico');
   tray.setToolTip("HoldOn");
-  tray.on('right-click',() =>{
+
+  tray.on('click', ()=>{
+    showWindow();
+  });
+
+  tray.on('right-click',()=>{
     tray.popUpContextMenu(contextMenu);
   });
 
@@ -126,6 +137,10 @@ app.whenReady().then(() => {
       type: img.isEmpty() ? 'text' : 'image',
       data: img.isEmpty() ?  text  : img.toDataURL(),
       time: (new Date()).getTime()
+    }
+
+    if (clip.data == "") {
+      return;
     }
 
     if (clip.type != prevClip.type || clip.data !== prevClip.data) {

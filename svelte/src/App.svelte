@@ -91,6 +91,18 @@
 		e.stopPropagation();
 		window.holdon.delete(results[e.target.parentElement.dataset.id]);
 	}
+
+	function sanitize(clip) {
+		if (regex) {
+			return clip.data
+				.slice(0,256)
+				.replace(/</g,'&lt;')
+				.replace(/>/g,'&gt;')
+				.replace(regex, "<span>$&</span>")
+		} else {
+			return clip.data.slice(0,256)
+		}
+	}
 </script>
 
 <svelte:window on:keydown={keyboardListener}/>
@@ -104,9 +116,9 @@
 		<div class="card" class:selected={i == selectedClip} data-id={i} on:mouseenter={itemHover} on:click={itemClick}>
 			{#if clip.type == "text"}
 				{#if regex}
-				<div class="clip">{@html clip.data.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(regex, "<span>$&</span>")}</div>
+				<div class="clip">{@html sanitize(clip)}</div>
 				{:else}
-				<div class="clip">{clip.data}</div>
+				<div class="clip">{sanitize(clip)}</div>
 				{/if}
 			{/if}
 			{#if clip.type == "image"}

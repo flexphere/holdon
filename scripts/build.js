@@ -7,7 +7,8 @@ build({
     files: ['app/**/*'],
     asar: true,
     win: {
-      target: "portable"
+      target: "portable",
+      icon: "app/holdon.png"
     }
   },
 });
