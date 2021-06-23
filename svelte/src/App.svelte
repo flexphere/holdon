@@ -89,7 +89,8 @@
 	}
 
 	function itemClick(e) {
-		window.holdon.paste(results[e.target.parentElement.dataset.id]);
+		const el = e.target.classList.contains('card') ? e.target : e.target.closest('.card');
+		window.holdon.paste(results[el.dataset.id]);
 	}
 
 	function itemDelete(e) {

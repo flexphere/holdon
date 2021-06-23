@@ -39,7 +39,7 @@ function createWindow () {
   });
   
   win.loadFile('app/index.html');
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
