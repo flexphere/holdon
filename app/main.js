@@ -2,14 +2,23 @@
 const {app, ipcMain, clipboard, nativeImage, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
 const path = require('path')
 
-const spawn = require('child_process').spawn;
-const {ArrayStore} = require('./store.js');
+const {execFile} = require('child_process');
+const {ArrayStore, ObjectStore} = require('./store.js');
 
-const CLIPBOARD_WATCH_INTERVAL = 250;
 const CLIPBOARD_HISTORY_FILE = path.join(app.getPath('userData'), 'history.json');
-const CLIPBOARD_HISTORY_MAX = 1000;
+const SETTINGS_FILE = path.join(app.getPath('userData'), 'settings.json');
 
-const history = new ArrayStore(CLIPBOARD_HISTORY_FILE, CLIPBOARD_HISTORY_MAX);
+
+const defaultSettings =  {
+  shortCut: "CommandOrControl+Shift+V",
+  pasteOnApply: true,
+  preloadClipboard: false,
+  historySize: 1000,
+  watchInterval: 250,
+};
+
+const settings = new ObjectStore(SETTINGS_FILE, defaultSettings);
+const history = new ArrayStore(CLIPBOARD_HISTORY_FILE, settings.get('historySize'));
 
 let win = null;
 let prevClip = "";
@@ -89,7 +98,7 @@ ipcMain.handle('pasteClip', async(event, clip) => {
   }
 
   hideWindow();
-
+  
   if (clip.type == "text") {
     clipboard.writeText(clip.data);
   }
@@ -98,8 +107,18 @@ ipcMain.handle('pasteClip', async(event, clip) => {
     const image = nativeImage.createFromDataURL(clip.data);
     clipboard.writeImage(image);
   }
+  
+  if (settings.get('pasteOnApply') === true) {
+    const pasteExec = process.env.NODE_ENV=='dev'
+                    ? path.join(__dirname, 'bin/crosspaster.exe')
+                    : path.join(process.resourcesPath, 'app/bin/crosspaster.exe')
 
-  spawn("powershell.exe",[`Add-Type -AssemblyName System.Windows.Forms \n[System.Windows.Forms.SendKeys]::SendWait("%n^{v}")`]);
+    execFile(pasteExec, function(err, data) {  
+      if(err){
+        console.log(err)
+      }
+    });
+  }
 });
 
 ipcMain.handle('deleteClip', (event, clip) => {
@@ -115,7 +134,7 @@ ipcMain.handle('closeWindow', (event, message) => {
 
 
 app.whenReady().then(() => {
-  globalShortcut.register('CommandOrControl+Shift+V', () => {
+  globalShortcut.register(settings.get('shortCut'), () => {
     showWindow();
   });
 
@@ -136,6 +155,10 @@ app.whenReady().then(() => {
     tray.popUpContextMenu(contextMenu);
   });
 
+  if (settings.get('preloadClipboard') === false) {
+    clipboard.writeText('');
+  }
+
   clipboardWatcher = setInterval(function(){
     const text = clipboard.readText();
     const img = clipboard.readImage();
@@ -154,9 +177,14 @@ app.whenReady().then(() => {
       history.push(clip);
       if (win) win.webContents.send("clipboardHistoryUpdated", history.data);
     }
-  }, CLIPBOARD_WATCH_INTERVAL);
+  }, settings.get('watchInterval'));
 })
 
 app.on('window-all-closed', () => {
   // Do Nothing
 });
+
+app.on('before-quit', ()=>{
+  history.save();
+  settings.save();
+})
