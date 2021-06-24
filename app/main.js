@@ -48,7 +48,10 @@ function createWindow () {
   });
   
   win.loadFile('app/index.html');
-  // win.webContents.openDevTools();
+  if(process.env.NODE_ENV === 'dev')
+  {
+    win.webContents.openDevTools();
+  }
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
