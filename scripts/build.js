@@ -6,6 +6,7 @@ build({
     productName: 'HoldOn',
     files: ['app/**/*','app/crosspaster.exe'],
     asar: true,
+    extraResources: ["app/bin/"],
     win: {
       target: "portable",
       icon: "app/holdon.png"
