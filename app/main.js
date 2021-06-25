@@ -103,6 +103,10 @@ ipcMain.handle('pasteClip', async(event, clip) => {
     clipboard.writeText(clip.data);
   }
 
+  if (clip.type == "rtf") {
+    clipboard.writeRTF(clip.data);
+  }
+
   if (clip.type == "image") {
     const image = nativeImage.createFromDataURL(clip.data);
     clipboard.writeImage(image);
@@ -160,12 +164,18 @@ app.whenReady().then(() => {
   }
 
   clipboardWatcher = setInterval(function(){
-    const text = clipboard.readText();
     const img = clipboard.readImage();
-    const clip = {
-      type: img.isEmpty() ? 'text' : 'image',
-      data: img.isEmpty() ?  text  : img.toDataURL(),
-      time: (new Date()).getTime()
+    const rtf = clipboard.readRTF();
+    const text = clipboard.readText();
+
+    let clip = {type: "text", data:text}
+    if (!img.isEmpty()) {
+      clip.type = "image";
+      clip.data = img.toDataURL();
+    } else if (rtf) {
+      clip.type = "rtf";
+      clip.data = rtf;
+      clip.text = text;
     }
 
     if (clip.data == "") {
@@ -173,6 +183,7 @@ app.whenReady().then(() => {
     }
 
     if (clip.type != prevClip.type || clip.data !== prevClip.data) {
+      clip.time = (new Date()).getTime();
       prevClip = clip;
       history.push(clip);
       if (win) win.webContents.send("clipboardHistoryUpdated", history.data);

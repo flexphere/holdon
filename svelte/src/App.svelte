@@ -40,7 +40,9 @@
 		}
 		else if (searchText.trim().length) {
 			regex = new RegExp(searchText, 'ig');
-			results = $clips.filter(c=>c.type === "text" && c.data.match(regex)) 
+			results = $clips.filter(c=>{
+				c.type === "text" ? c.data.match(regex) : c.text.match(regex)
+			})
 		} else {
 			regex = null;
 			results = $clips.slice(0,25);
@@ -100,14 +102,15 @@
 	}
 
 	function sanitize(clip) {
+		const data = clip.text || clip.data;
 		if (regex) {
-			return clip.data
+			return data
 				.slice(0,256)
 				.replace(/</g,'&lt;')
 				.replace(/>/g,'&gt;')
 				.replace(regex, "<span>$&</span>")
 		} else {
-			return clip.data.slice(0,256)
+			return data.slice(0,256)
 		}
 	}
 </script>
@@ -122,6 +125,13 @@
 		{#each results as clip, i}
 		<div class="card" class:selected={i == selectedClip} data-id={i} on:mouseenter={itemHover} on:click={itemClick}>
 			{#if clip.type == "text"}
+				{#if regex}
+				<div class="clip">{@html sanitize(clip)}</div>
+				{:else}
+				<div class="clip">{sanitize(clip)}</div>
+				{/if}
+			{/if}
+			{#if clip.type == "rtf"}
 				{#if regex}
 				<div class="clip">{@html sanitize(clip)}</div>
 				{:else}
