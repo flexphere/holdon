@@ -5,6 +5,10 @@ const path = require('path')
 const {execFile} = require('child_process');
 const {ArrayStore, ObjectStore} = require('./store.js');
 
+const argv = process.argv.slice(2);
+const production = !argv.find(_ => _ === '--dev');
+const devTools = !!argv.find(_ => _ === '--devtools');
+
 const CLIPBOARD_HISTORY_FILE = path.join(app.getPath('userData'), 'history.json');
 const SETTINGS_FILE = path.join(app.getPath('userData'), 'settings.json');
 
@@ -48,10 +52,7 @@ function createWindow () {
   });
   
   win.loadFile('app/index.html');
-  if(process.env.NODE_ENV === 'dev')
-  {
-    win.webContents.openDevTools();
-  }
+
   win.webContents.send("clipboardHistoryUpdated", history.data);
 
   win.on('blur', function(event){
@@ -72,6 +73,10 @@ function createWindow () {
       win.setSize(winWidth, winHeight + 20);
     }
   });
+
+  if(devTools) {
+    win.webContents.openDevTools();
+  }
 }
 
 function hideWindow() {
@@ -113,9 +118,9 @@ ipcMain.handle('pasteClip', async(event, clip) => {
   }
   
   if (settings.get('pasteOnApply') === true) {
-    const pasteExec = process.env.NODE_ENV=='dev'
-                    ? path.join(__dirname, 'bin/crosspaster.exe')
-                    : path.join(process.resourcesPath, 'app/bin/crosspaster.exe')
+    const pasteExec = production
+                    ? path.join(process.resourcesPath, 'app/bin/crosspaster.exe')
+                    : path.join(__dirname, 'bin/crosspaster.exe')
 
     execFile(pasteExec, function(err, data) {  
       if(err){

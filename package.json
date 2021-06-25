@@ -1,20 +1,38 @@
 {
   "name": "holdon",
   "version": "1.0.0",
-  "description": "",
+  "description": "yet another clipboard manager",
+  "author": "ankh davis",
   "main": "app/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "node_modules/.bin/electron .",
-    "build-svelte": "cd svelte && npm install && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/"
+    "start": "electron . --dev",
+    "dev": "npx electron . --dev --devtools",
+    "build-svelte": "cd svelte && npm install && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/",
+    "build": ""
   },
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^13.1.2",
-    "electron-builder": "^22.11.7"
+    "electron-builder": "^22.11.7",
+    "shelljs": "^0.8.4"
   },
   "dependencies": {
     "svelte": "^3.38.2"
+  },
+  "productName": "HoldOn",
+  "build": {
+    "appId": "com.bar38.Holdon",
+    "productName": "HoldOn",
+    "files": [
+      "app/**/*"
+    ],
+    "asar": true,
+    "extraResources": [
+      "app/bin/"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "app/holdon.png"
+    }
   }
 }
