@@ -15,7 +15,6 @@
     "electron-builder": "^22.11.7"
   },
   "dependencies": {
-    "node-key-sender": "^1.0.11",
     "svelte": "^3.38.2"
   }
 }
