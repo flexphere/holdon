@@ -11,7 +11,5 @@ Yet another clipboard history manager.
 ```
 $ clone https://github.com/flexphere/holdon.git
 $ cd holdon
-$ npm install 
-$ npm run build-svelte
 $ node ./scripts/build.js
 ```
