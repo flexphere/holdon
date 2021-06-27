@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "description": "yet another clipboard manager",
   "author": "ankh davis",
+  "license": "MIT",
+  "homepage": "https://github.com/flexphere/holdon#readme",
+  "bugs": {
+    "url": "https://github.com/flexphere/holdon/issues"
+  },
   "main": "app/main.js",
   "scripts": {
     "start": "electron . --dev",
     "dev": "npx electron . --dev --devtools",
     "build-svelte": "cd svelte && npm install && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/",
-    "build": ""
+    "build": "node ./scripts/build.js"
   },
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flexphere/holdon.git"
+  },
   "devDependencies": {
     "electron": "^13.1.2",
     "electron-builder": "^22.11.7",
@@ -19,6 +27,7 @@
   "dependencies": {
     "svelte": "^3.38.2"
   },
+  "private": true,
   "productName": "HoldOn",
   "build": {
     "appId": "com.bar38.Holdon",
@@ -34,5 +43,23 @@
       "target": "portable",
       "icon": "app/holdon.png"
     }
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            "dist/*.exe"
+          ]
+        }
+      ]
+    ]
   }
 }
