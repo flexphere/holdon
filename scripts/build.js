@@ -1,16 +1,11 @@
-const { build } = require('electron-builder');
+var shell = require('shelljs');
 
-build({
-  config: {
-    appId: 'com.bar38.Holdon',
-    productName: 'HoldOn',
-    files: ['app/**/*','app/crosspaster.exe'],
-    asar: true,
-    extraResources: ["app/bin/"],
-    win: {
-      target: "portable",
-      icon: "app/holdon.png"
-    },
-    extraFiles:['app/crosspaster.exe']
-  },
-});
+shell.cd("svelte")
+shell.exec("npm install")
+shell.exec("npm run build")
+shell.cp("public/build/bundle*", "../app/")
+shell.cp("public/bundle*", "../app/")
+
+shell.cd("../")
+shell.exec("npm install")
+shell.exec("npx electron-builder")
