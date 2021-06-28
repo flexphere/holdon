@@ -37,6 +37,7 @@ function createWindow () {
     width: winWidth,
     height: winHeight,
     // useContentSize: true,
+    skipTaskbar: true,
     frame: false,
     alwaysOnTop: true,
     resizable: true,
