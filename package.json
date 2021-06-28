@@ -13,15 +13,18 @@
     "start": "electron . --dev",
     "dev": "npx electron . --dev --devtools",
     "build-svelte": "cd svelte && npm install && npm run build && cp public/build/bundle* ../app/ && cp public/bundle* ../app/",
-    "build": "node ./scripts/build.js"
+    "build": "node ./scripts/build.js",
+    "postversion": "node ./scripts/build.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/flexphere/holdon.git"
   },
   "devDependencies": {
+    "@semantic-release/git": "^9.0.0",
     "electron": "^13.1.2",
     "electron-builder": "^22.11.7",
+    "semantic-release": "^17.4.4",
     "shelljs": "^0.8.4"
   },
   "dependencies": {
@@ -59,7 +62,8 @@
             "dist/*.exe"
           ]
         }
-      ]
+      ],
+      "@semantic-release/git"
     ]
   }
 }
