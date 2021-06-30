@@ -105,25 +105,27 @@ ipcMain.handle('pasteClip', async(event, clip) => {
 
   hideWindow();
   
-  if (clip.type == "text") {
-    clipboard.writeText(clip.data);
+  const type = clip.pasteOptions[clip.pasteAs];
+  
+  if (type == "text") {
+    clipboard.writeText(clip.text);
   }
 
-  if (clip.type == "rtf") {
-    clipboard.writeRTF(clip.data);
+  if (type == "rtf") {
+    clipboard.writeRTF(clip.rtf);
   }
 
-  if (clip.type == "image") {
-    const image = nativeImage.createFromDataURL(clip.data);
+  if (type == "image") {
+    const image = nativeImage.createFromDataURL(clip.image);
     clipboard.writeImage(image);
   }
-  
+
   if (settings.get('pasteOnApply') === true) {
     const pasteExec = production
                     ? path.join(process.resourcesPath, 'app/bin/crosspaster.exe')
                     : path.join(__dirname, 'bin/crosspaster.exe')
 
-    execFile(pasteExec, function(err, data) {  
+    execFile(pasteExec, function(err, data) {
       if(err){
         console.log(err)
       }
@@ -171,24 +173,20 @@ app.whenReady().then(() => {
 
   clipboardWatcher = setInterval(function(){
     const img = clipboard.readImage();
-    const rtf = clipboard.readRTF();
-    const text = clipboard.readText();
 
-    let clip = {type: "text", data:text}
-    if (!img.isEmpty()) {
-      clip.type = "image";
-      clip.data = img.toDataURL();
-    } else if (rtf) {
-      clip.type = "rtf";
-      clip.data = rtf;
-      clip.text = text;
+    const clip = {
+      text: clipboard.readText(),
+      rtf: clipboard.readRTF(),
+      image: img.isEmpty() ? '' : img.toDataURL()
     }
 
-    if (clip.data == "") {
+    if (clip.text === "" && clip.image === "") {
       return;
     }
 
-    if (clip.type != prevClip.type || clip.data !== prevClip.data) {
+    if (clip.text !== prevClip.text || clip.image !== prevClip.image) { 
+      clip.pasteOptions = Object.keys(clip).filter(k=>clip[k] !== '');
+      clip.pasteAs = clip.pasteOptions.length - 1;
       clip.time = (new Date()).getTime();
       prevClip = clip;
       history.push(clip);

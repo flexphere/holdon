@@ -43,13 +43,19 @@ class ArrayStore {
     }
 
     push(data) {
-        this.data = [data, ...this.data.filter(v => v.data != data.data)];
-        this.save()
+        const idx = this.data.findIndex(v=>(v.text + v.image) == (data.text + data.image));
+        if (idx === -1) {
+            this.data = [data, ...this.data];
+        } else {
+            const tmp = this.data.splice(idx, 1);
+            this.data = [tmp[0], ...this.data];
+        }
+        this.save();
         return this.data;
     }
     
     delete(data) {
-        this.data = [...this.data.filter(v => v.data != data.data)]
+        this.data = [...this.data.filter(v => (v.text + v.image) != (data.text + data.image))]
         this.save()
         return this.data;
     }

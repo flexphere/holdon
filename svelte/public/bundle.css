@@ -170,20 +170,31 @@ body {
 	background: var(--gray-600);
 }
 
+.card .pasteOption {
+	width: 5rem;
+	margin: 1.6rem;
+	padding: .3rem 1rem;
+	border: solid 1px var(--gray-400);
+	border-radius: 3px;
+	color: var(--gray-400);
+	font-size: 1.1rem;
+	text-align: center;
+}
+
 .card .delete {
 	width: 40px;
-    text-align: center;
-    color: #fb4a4a;
-    cursor: pointer;
-    background: var(--gray-800);
-    justify-content: center;
-    align-items: center;
-    display: flex;
+	text-align: center;
+	color: #fb4a4a;
+	cursor: pointer;
+	background: var(--gray-800);
+	justify-content: center;
+	align-items: center;
+	display: flex;
 }
 
 .card.selected .delete {
 	/* border: solid 1px var(--gray-800); */
-    border-radius: 0 1rem 1rem 0;
+	border-radius: 0 1rem 1rem 0;
 	background: var(--gray-700);
 }
 
