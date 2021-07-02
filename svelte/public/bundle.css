@@ -179,6 +179,16 @@ body {
 	color: var(--gray-400);
 	font-size: 1.1rem;
 	text-align: center;
+	cursor: pointer;
+}
+
+.card.selected .pasteOption {
+	border: solid 1px var(--gray-300);
+	color: var(--gray-300);
+}
+
+.card .pasteOption::selection {
+	background: transparent;
 }
 
 .card .delete {
