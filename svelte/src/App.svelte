@@ -87,28 +87,11 @@
 		}
 
 		if (e.key =="ArrowRight" && selectedClip > -1) {
-			if (selectedClip == -1) {
-				return;
-			}
-			const maxIndex = results[selectedClip].pasteOptions.length - 1;
-			
-			if (results[selectedClip].pasteAs >= maxIndex) {
-				results[selectedClip].pasteAs = 0;
-			} else {
-				results[selectedClip].pasteAs += 1;
-			}
+			nextPasteOption(e);
 		}
 
 		if (e.key =="ArrowLeft" && selectedClip > -1) {
-			if (selectedClip == -1) {
-				return;
-			}
-			const maxIndex = results[selectedClip].pasteOptions.length - 1;
-			if (results[selectedClip].pasteAs <= 0) {
-				results[selectedClip].pasteAs = maxIndex;
-			} else {
-				results[selectedClip].pasteAs -= 1;
-			}
+			prevPasteOption(e);
 		}
 
 		if ((e.key=='F' || e.key=='f') && e.ctrlKey) {
@@ -124,6 +107,35 @@
 
 		if (e.key == 'Escape') {
 			window.holdon.close();
+		}
+	}
+
+	function nextPasteOption(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (selectedClip == -1) {
+			return;
+		}
+		const maxIndex = results[selectedClip].pasteOptions.length - 1;
+		
+		if (results[selectedClip].pasteAs >= maxIndex) {
+			results[selectedClip].pasteAs = 0;
+		} else {
+			results[selectedClip].pasteAs += 1;
+		}
+	}
+
+	function prevPasteOption(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (selectedClip == -1) {
+			return;
+		}
+		const maxIndex = results[selectedClip].pasteOptions.length - 1;
+		if (results[selectedClip].pasteAs <= 0) {
+			results[selectedClip].pasteAs = maxIndex;
+		} else {
+			results[selectedClip].pasteAs -= 1;
 		}
 	}
 
@@ -180,7 +192,7 @@
 			{/if}
 
 			{#if clip.pasteOptions.length > 1}
-			<div class="pasteOption">
+			<div class="pasteOption" on:click={nextPasteOption}>
 				{clip.pasteOptions[clip.pasteAs].toUpperCase()}
 			</div>
 			{/if}
