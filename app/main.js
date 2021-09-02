@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
-const {app, ipcMain, clipboard, nativeImage, Tray, Menu, globalShortcut, BrowserWindow} = require('electron')
+const {app, ipcMain, clipboard, nativeImage, Tray, Menu, shell, globalShortcut, BrowserWindow} = require('electron')
+
 const path = require('path')
 
 const {execFile} = require('child_process');
@@ -153,6 +154,8 @@ app.whenReady().then(() => {
 
   const contextMenu = Menu.buildFromTemplate([
     {label:'ClearAll', click(menuItem){ win.webContents.send("clipboardHistoryUpdated", history.clear()); }},
+    { type: 'separator' },
+    {label:'Settings', click(menuItem){ shell.openExternal(SETTINGS_FILE);}},
     { type: 'separator' },
     {label:'Exit', click(menuItem){ app.quit(); }}
   ]);
