@@ -185,7 +185,7 @@ app.whenReady().then(() => {
       return;
     }
 
-    if (settings.includeImages === false && clip.image !== "" && clip.text === '') {
+    if (settings.get('includeImages') === false && !clip.text && clip.image) {
       return;
     }
 
