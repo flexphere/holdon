@@ -19,6 +19,7 @@ const defaultSettings =  {
   preloadClipboard: false,
   historySize: 1000,
   watchInterval: 250,
+  includeImages: true,
 };
 
 const settings = new ObjectStore(SETTINGS_FILE, defaultSettings);
@@ -181,6 +182,10 @@ app.whenReady().then(() => {
     }
 
     if (clip.text === "" && clip.image === "") {
+      return;
+    }
+
+    if (settings.includeImages === false && clip.image !== "" && clip.text === '') {
       return;
     }
 
