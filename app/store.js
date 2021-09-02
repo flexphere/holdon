@@ -28,7 +28,7 @@ class ObjectStore {
     }
  
     save() {
-        const jsondata = JSON.stringify(this.data);
+        const jsondata = JSON.stringify(this.data, null, 2);
         fs.writeFileSync(this.file, jsondata);
     }
 }
