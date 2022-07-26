@@ -19,6 +19,10 @@ class ObjectStore {
 
     load() {
         try {
+            if (!fs.existsSync(this.file)) {
+                fs.writeFileSync(this.file, JSON.stringify(this.data, null, 2));
+            }
+
             const rawdata = fs.readFileSync(this.file, {encoding:'utf-8'});
             this.data = JSON.parse(rawdata);
         } catch(error) {
@@ -68,6 +72,10 @@ class ArrayStore {
 
     load() {
         try {
+            if (!fs.existsSync(this.file)) {
+                fs.writeFileSync(this.file, JSON.stringify(this.data, null, 2));
+            }
+
             const rawdata = fs.readFileSync(this.file, {encoding:'utf-8'});
             this.data = JSON.parse(rawdata);
         } catch(error) {

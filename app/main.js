@@ -1,10 +1,12 @@
 // Modules to control application life and create native browser window
 const {app, ipcMain, clipboard, nativeImage, Tray, Menu, shell, globalShortcut, BrowserWindow} = require('electron')
 
+const fs = require('fs');
 const path = require('path')
 
 const {execFile} = require('child_process');
 const {ArrayStore, ObjectStore} = require('./store.js');
+const { fstat } = require('fs');
 
 const argv = process.argv.slice(2);
 const production = !argv.find(_ => _ === '--dev');
@@ -12,7 +14,6 @@ const devTools = !!argv.find(_ => _ === '--devtools');
 
 const CLIPBOARD_HISTORY_FILE = path.join(app.getPath('userData'), 'history.json');
 const SETTINGS_FILE = path.join(app.getPath('userData'), 'settings.json');
-
 
 const defaultSettings =  {
   shortCut: "CommandOrControl+Shift+V",
@@ -160,16 +161,16 @@ app.whenReady().then(() => {
     {label:'Exit', click(menuItem){ app.quit(); }}
   ]);
 
-  tray = new Tray(__dirname + '/holdon.ico');
-  tray.setToolTip("HoldOn");
+  // tray = new Tray(__dirname + '/holdon.ico');
+  // tray.setToolTip("HoldOn");
 
-  tray.on('click', ()=>{
-    showWindow();
-  });
+  // tray.on('click', ()=>{
+  //   showWindow();
+  // });
 
-  tray.on('right-click',()=>{
-    tray.popUpContextMenu(contextMenu);
-  });
+  // tray.on('right-click',()=>{
+  //   tray.popUpContextMenu(contextMenu);
+  // });
 
   if (settings.get('preloadClipboard') === false) {
     clipboard.writeText('');
@@ -183,6 +184,8 @@ app.whenReady().then(() => {
       rtf: clipboard.readRTF(),
       image: img.isEmpty() ? '' : img.toDataURL()
     }
+
+    console.log(clip)
 
     if (clip.text === "" && clip.image === "") {
       return;
