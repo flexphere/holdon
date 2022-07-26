@@ -28,7 +28,7 @@
     "shelljs": "^0.8.4"
   },
   "dependencies": {
-    "svelte": "^3.38.2"
+    "svelte": "^3.49.0"
   },
   "private": true,
   "productName": "HoldOn",
