@@ -1,12 +1,10 @@
 // Modules to control application life and create native browser window
 const {app, ipcMain, clipboard, nativeImage, Tray, Menu, shell, globalShortcut, BrowserWindow} = require('electron')
 
-const fs = require('fs');
 const path = require('path')
 
 const {execFile} = require('child_process');
 const {ArrayStore, ObjectStore} = require('./store.js');
-const { fstat } = require('fs');
 
 const argv = process.argv.slice(2);
 const production = !argv.find(_ => _ === '--dev');
@@ -161,16 +159,16 @@ app.whenReady().then(() => {
     {label:'Exit', click(menuItem){ app.quit(); }}
   ]);
 
-  // tray = new Tray(__dirname + '/holdon.ico');
-  // tray.setToolTip("HoldOn");
+  tray = new Tray(__dirname + '/holdon.ico');
+  tray.setToolTip("HoldOn");
 
-  // tray.on('click', ()=>{
-  //   showWindow();
-  // });
+  tray.on('click', ()=>{
+    showWindow();
+  });
 
-  // tray.on('right-click',()=>{
-  //   tray.popUpContextMenu(contextMenu);
-  // });
+  tray.on('right-click',()=>{
+    tray.popUpContextMenu(contextMenu);
+  });
 
   if (settings.get('preloadClipboard') === false) {
     clipboard.writeText('');
