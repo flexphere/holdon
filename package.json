@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@semantic-release/git": "^9.0.0",
-    "electron": "^13.1.2",
+    "electron": "^18.3.7",
     "electron-builder": "^22.11.7",
     "semantic-release": "^17.4.4",
     "shelljs": "^0.8.4"
